@@ -39,15 +39,17 @@ func (p *ParquetWriter) WriteJson(json []byte) {
 }
 
 // write record
-func (p *ParquetWriter) Write(record *map[string]interface{}) {
+func (p *ParquetWriter) Write(record *map[string]interface{}) error {
 	group := p.currentRowGroup
 	group.WriteRecord(record)
 	p.rows++
+	var err error = nil
 	if group.len == p.PageSize {
-		p.currentRowGroup.Close()
+		err = p.currentRowGroup.Close()
 		//p.currentRowGroup = NewRowGroupWriter(p.schema, p.meta, p.writer, p.PageSize)
 		p.meta.StartRowGroup(p.schema.PFields...)
 	}
+	return err
 }
 
 func (p *ParquetWriter) Rows() int64 {
